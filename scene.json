@@ -1,0 +1,74 @@
+{
+  "camera": {
+    "fov": 45,
+    "lookAt": { "x": 0, "y": 1, "z": 0 },
+    "position": { "x": -15, "y": 3, "z": 15 },
+    "up": { "x": 0, "y": 1, "z": 0 }
+  },
+  "config": {
+    "height": 600,
+    "output_file": "output.ppm",
+    "width": 800
+  },
+  "scene": {
+    "ambient_light": { "r": 0.15, "g": 0.15, "b": 0.15 },
+    "lights": [
+      {
+        "type": "point",
+        "position": { "x": -5, "y": 8, "z": 5 },
+        "intensity": { "r": 1, "g": 1, "b": 1 }
+      }
+    ],
+    "objects": [
+      {
+        "type": "plane",
+        "normal": { "x": 0, "y": 1, "z": 0 },
+        "distance": 0,
+        "material": {
+          "color": { "r": 0.6, "g": 0.6, "b": 0.6 },
+          "diffuse": 0.8,
+          "specular": 0.3,
+          "shininess": 32,
+          "reflectivity": 0.4
+        }
+      },
+      {
+        "type": "cone",
+        "base_center": { "x": -3, "y": 0, "z": 0 },
+        "radius": 1,
+        "height": 2,
+        "material": {
+          "color": { "r": 1, "g": 0, "b": 0 },
+          "diffuse": 0.3,
+          "specular": 0.9,
+          "shininess": 128,
+          "reflectivity": 0.5
+        }
+      },
+      {
+        "type": "sphere",
+        "center": { "x": 0, "y": 1, "z": 0 },
+        "radius": 1,
+        "material": {
+          "color": { "r": 1, "g": 1, "b": 1 },
+          "diffuse": 0.7,
+          "specular": 0.7,
+          "shininess": 64,
+          "reflectivity": 0.3
+        }
+      },
+      {
+        "type": "cube",
+        "min": { "x": 2, "y": 0, "z": -1 },
+        "max": { "x": 4, "y": 2, "z": 1 },
+        "material": {
+          "color": { "r": 0, "g": 0, "b": 1 },
+          "diffuse": 0.3,
+          "specular": 0.8,
+          "shininess": 128,
+          "reflectivity": 0.6
+        }
+      }
+    ]
+  }
+}

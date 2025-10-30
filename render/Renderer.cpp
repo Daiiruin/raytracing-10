@@ -1,0 +1,80 @@
+#include "Renderer.hpp"
+#include <fstream>
+#include <iostream>
+#include <limits>
+#include "../core/Utils.hpp"
+
+static bool nearestHit(const Scene& scene,const Ray& r,double tMin,double tMax,Hit& out){
+    bool hit=false; double closest=tMax;
+    for(const auto& obj: scene.objects){
+        auto h=obj->intersect(r,tMin,closest);
+        if(h){ hit=true; closest=h->t; out=*h; }
+    }
+    return hit;
+}
+
+static bool inShadow(const Scene& scene,const Vec3& p,const Vec3& Lpos){
+    Vec3 toL=Lpos-p; double distL=std::sqrt(dot(toL,toL)); Vec3 dir=toL/distL;
+    Ray shadow{p+dir*1e-4,dir}; Hit tmp;
+    return nearestHit(scene,shadow,1e-4,distL-1e-4,tmp);
+}
+
+static Vec3 shade(const Scene& scene,const Ray& r,int depth){
+    if(depth<=0) return {0,0,0};
+    Hit h; if(!nearestHit(scene,r,1e-4,1e9,h)) return {0,0,0};
+    Vec3 color= h.mat->color * scene.ambient.x; // simple ambient
+    Vec3 V=normalize(-r.d);
+    for(auto& L: scene.lights){
+        if(inShadow(scene,h.p,L.pos)) continue;
+        Vec3 Ldir=normalize(L.pos-h.p);
+        double NdotL=std::max(0.0,dot(h.n,Ldir));
+        Vec3 diff=h.mat->color * (h.mat->diffuse*NdotL);
+        Vec3 H=normalize(Ldir+V);
+        double NdotH=std::max(0.0,dot(h.n,H));
+        Vec3 spec=L.intensity*(h.mat->specular*pow(NdotH,h.mat->shininess));
+        color=color+diff+spec;
+    }
+    if(h.mat->reflectivity>0){
+        Vec3 Rdir=reflect(r.d,h.n);
+        Ray rr{h.p+Rdir*1e-4,normalize(Rdir)};
+        Vec3 rcol=shade(scene,rr,depth-1);
+        color=(1-h.mat->reflectivity)*color + h.mat->reflectivity*rcol;
+    }
+    return clamp01(color);
+}
+
+void Renderer::render(const Scene& scene){
+    double aspect=(double)scene.width/scene.height;
+    double fov=scene.fov*M_PI/180.0; double scale=tan(fov*0.5);
+    Vec3 forward=normalize(scene.camLook-scene.camPos);
+    Vec3 right=normalize(Vec3(forward.y*scene.camUp.z-forward.z*scene.camUp.y,
+                              forward.z*scene.camUp.x-forward.x*scene.camUp.z,
+                              forward.x*scene.camUp.y-forward.y*scene.camUp.x));
+    Vec3 up=normalize(Vec3(right.y*forward.z-right.z*forward.y,
+                           right.z*forward.x-right.x*forward.z,
+                           right.x*forward.y-right.y*forward.x));
+
+    std::vector<Vec3> framebuffer(scene.width*scene.height);
+    for(int y=0;y<scene.height;y++){
+        for(int x=0;x<scene.width;x++){
+            double ndc_x=((x+0.5)/scene.width)*2-1;
+            double ndc_y=((y+0.5)/scene.height)*2-1;
+            ndc_x*=aspect*scale; ndc_y*=-scale;
+            Vec3 dir=normalize(forward+right*ndc_x+up*ndc_y);
+            Ray r{scene.camPos,dir};
+            framebuffer[y*scene.width+x]=shade(scene,r,maxDepth);
+        }
+        if(y%20==0) std::cerr<<"Ligne "<<y<<"/"<<scene.height<<"\n";
+    }
+    std::ofstream out(scene.output,std::ios::binary);
+    out<<"P6\n"<<scene.width<<" "<<scene.height<<"\n255\n";
+    for(auto& c: framebuffer){
+        auto cc=clamp01(c);
+        unsigned char r=(unsigned char)(255*cc.x);
+        unsigned char g=(unsigned char)(255*cc.y);
+        unsigned char b=(unsigned char)(255*cc.z);
+        out.write((char*)&r,1); out.write((char*)&g,1); out.write((char*)&b,1);
+    }
+    out.close();
+    std::cerr<<"OK -> "<<scene.output<<"\n";
+}
