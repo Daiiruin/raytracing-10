@@ -81,12 +81,10 @@ void Renderer::render(const Scene& scene){
         }
     }
 
-    // Nom de sortie (tu peux garder scene.output pour compatibilité)
     std::string pngOutput = scene.output;
     if (pngOutput.size() >= 4 && pngOutput.substr(pngOutput.size() - 4) == ".ppm")
         pngOutput = pngOutput.substr(0, pngOutput.size() - 4) + ".png";
 
-    // Écriture directe du PNG
     if (stbi_write_png(pngOutput.c_str(), scene.width, scene.height, 3,
                     pixels.data(), scene.width * 3)) {
         std::cerr << "OK -> " << pngOutput << "\n";
