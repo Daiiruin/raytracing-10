@@ -25,8 +25,12 @@ struct Vec3 {
     }
 };
 
+// Produit scalaire
+// Mesur l'angle entre deux vecteurs
 inline double dot(const Vec3& a, const Vec3& b) { return a.x * b.x + a.y * b.y + a.z * b.z; }
+// Calcul la norme (longueur) d'un vecteur
 inline double length(const Vec3& v) { return std::sqrt(dot(v, v)); }
+// Renvoi d'un vecteur (longueur = 1)
 inline Vec3 normalize(const Vec3& v) { double L = length(v); return (L > 0) ? v / L : v; }
 inline Vec3 reflect(const Vec3& I, const Vec3& N) { return I - N * (2.0 * dot(I, N)); }
 

@@ -9,7 +9,7 @@ struct PointLight { Vec3 pos,intensity; };
 
 struct Scene {
     int width=500, height=400;
-    std::string output="output.ppm";
+    std::string output="output.png";
     Vec3 camPos{0,0,0}, camLook{0,0,-1}, camUp{0,1,0};
     double fov=45.0;
     Vec3 ambient{0.1,0.1,0.1};

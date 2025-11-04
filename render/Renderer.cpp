@@ -1,8 +1,10 @@
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "Renderer.hpp"
 #include <fstream>
 #include <iostream>
 #include <limits>
 #include "../core/Utils.hpp"
+#include <stb/stb_image_write.h>
 
 static bool nearestHit(const Scene& scene,const Ray& r,double tMin,double tMax,Hit& out){
     bool hit=false; double closest=tMax;
@@ -66,15 +68,29 @@ void Renderer::render(const Scene& scene){
         }
         if(y%20==0) std::cerr<<"Ligne "<<y<<"/"<<scene.height<<"\n";
     }
-    std::ofstream out(scene.output,std::ios::binary);
-    out<<"P6\n"<<scene.width<<" "<<scene.height<<"\n255\n";
-    for(auto& c: framebuffer){
-        auto cc=clamp01(c);
-        unsigned char r=(unsigned char)(255*cc.x);
-        unsigned char g=(unsigned char)(255*cc.y);
-        unsigned char b=(unsigned char)(255*cc.z);
-        out.write((char*)&r,1); out.write((char*)&g,1); out.write((char*)&b,1);
+    // Conversion du framebuffer en tableau d'octets (RGB 8 bits)
+    std::vector<unsigned char> pixels(scene.width * scene.height * 3);
+
+    for (int y = 0; y < scene.height; ++y) {
+        for (int x = 0; x < scene.width; ++x) {
+            Vec3 c = clamp01(framebuffer[y * scene.width + x]);
+            int idx = (y * scene.width + x) * 3;
+            pixels[idx + 0] = static_cast<unsigned char>(255 * c.x);
+            pixels[idx + 1] = static_cast<unsigned char>(255 * c.y);
+            pixels[idx + 2] = static_cast<unsigned char>(255 * c.z);
+        }
     }
-    out.close();
-    std::cerr<<"OK -> "<<scene.output<<"\n";
+
+    // Nom de sortie (tu peux garder scene.output pour compatibilité)
+    std::string pngOutput = scene.output;
+    if (pngOutput.size() >= 4 && pngOutput.substr(pngOutput.size() - 4) == ".ppm")
+        pngOutput = pngOutput.substr(0, pngOutput.size() - 4) + ".png";
+
+    // Écriture directe du PNG
+    if (stbi_write_png(pngOutput.c_str(), scene.width, scene.height, 3,
+                    pixels.data(), scene.width * 3)) {
+        std::cerr << "OK -> " << pngOutput << "\n";
+    } else {
+        std::cerr << "Erreur lors de l'écriture du PNG\n";
+    }
 }

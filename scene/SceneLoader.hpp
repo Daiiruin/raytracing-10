@@ -2,9 +2,7 @@
 #include "Scene.hpp"
 #include "../core/Material.hpp"
 #include "../objects/Sphere.hpp"
-#include "../objects/Cube.hpp"
 #include "../objects/Plane.hpp"
-#include "../objects/Cone.hpp"
 #include <nlohmann/json.hpp>
 #include <fstream>
 
@@ -48,17 +46,6 @@ inline Scene loadScene(const std::string& path){
         Material m=parseMaterial(oj["material"]);
         if(type=="sphere") s.objects.push_back(std::make_unique<Sphere>(parseVec3(oj["center"]), oj.value("radius",1.0), m));
         else if(type=="plane") s.objects.push_back(std::make_unique<Plane>(parseVec3(oj["normal"]), oj.value("distance",0.0), m));
-        else if (type == "cube") {
-            Vec3 minC = parseVec3(oj["min"]);
-            Vec3 maxC = parseVec3(oj["max"]);
-            s.objects.push_back(std::make_unique<Cube>(minC, maxC, m));
-        }
-        else if(type=="cone") {
-            Vec3 baseC = parseVec3(oj["base_center"]);
-            double radius = oj.value("radius",1.0);
-            double height = oj.value("height",2.0);
-            s.objects.push_back(std::make_unique<Cone>(baseC, radius, height, m));
-        }
     }
     return s;
 }
