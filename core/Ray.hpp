@@ -3,5 +3,5 @@
 
 struct Ray {
     // Origine et Direction
-    Vec3 o,d;
+    Vec3 origin,direction;
 };

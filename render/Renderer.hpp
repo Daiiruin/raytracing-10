@@ -1,9 +1,9 @@
 #pragma once
 #include "../scene/Scene.hpp"
 #include "../core/Ray.hpp"
-#include "../core/Hit.hpp"
+#include "../core/HitRecord.hpp"
 
 struct Renderer {
-    int maxDepth=3;
+    int maxDepth;
     void render(const Scene& scene);
 };

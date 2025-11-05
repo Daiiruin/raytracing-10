@@ -6,89 +6,144 @@
 #include "../core/Utils.hpp"
 #include <stb/stb_image_write.h>
 
-static bool nearestHit(const Scene& scene,const Ray& r,double tMin,double tMax,Hit& out){
-    bool hit=false; double closest=tMax;
-    for(const auto& obj: scene.objects){
-        auto h=obj->intersect(r,tMin,closest);
-        if(h){ hit=true; closest=h->t; out=*h; }
+// Trouve la première intersection entre un rayon et les objets de la scène
+static bool findNearestIntersection(const Scene& scene,const Ray& ray,double minDistance,double maxDistance,HitRecord& outHit){
+    bool hasHit = false;
+    double closestDistance = maxDistance;
+
+    for (const auto& object : scene.objects) {
+        auto hit = object->intersect(ray, minDistance, closestDistance);
+        if (hit) {
+            hasHit = true;
+            closestDistance = hit->distanceFromRayOrigin;
+            outHit = *hit;
+        }
     }
-    return hit;
+    return hasHit;
 }
 
-static bool inShadow(const Scene& scene,const Vec3& p,const Vec3& Lpos){
-    Vec3 toL=Lpos-p; double distL=std::sqrt(dot(toL,toL)); Vec3 dir=toL/distL;
-    Ray shadow{p+dir*1e-4,dir}; Hit tmp;
-    return nearestHit(scene,shadow,1e-4,distL-1e-4,tmp);
+// Vérifie si un point est dans l'ombre par rapport à une lumière donnée
+static bool isInShadow(const Scene& scene,const Vec3& point,const Vec3& lightPosition){
+    Vec3 toLight = lightPosition - point;
+    double lightDistance = std::sqrt(dot(toLight, toLight));
+    Vec3 lightDirection = toLight / lightDistance;
+
+    Ray shadowRay { point + lightDirection * 1e-4, lightDirection };
+    HitRecord tempHit;
+
+    return findNearestIntersection(scene, shadowRay, 1e-4, lightDistance - 1e-4, tempHit);
 }
 
-static Vec3 shade(const Scene& scene,const Ray& r,int depth){
-    if(depth<=0) return {0,0,0};
-    Hit h; if(!nearestHit(scene,r,1e-4,1e9,h)) return {0,0,0};
-    Vec3 color= h.mat->color * scene.ambient.x; // simple ambient
-    Vec3 V=normalize(-r.d);
-    for(auto& L: scene.lights){
-        if(inShadow(scene,h.p,L.pos)) continue;
-        Vec3 Ldir=normalize(L.pos-h.p);
-        double NdotL=std::max(0.0,dot(h.n,Ldir));
-        Vec3 diff=h.mat->color * (h.mat->diffuse*NdotL);
-        Vec3 H=normalize(Ldir+V);
-        double NdotH=std::max(0.0,dot(h.n,H));
-        Vec3 spec=L.intensity*(h.mat->specular*pow(NdotH,h.mat->shininess));
-        color=color+diff+spec;
+// Calcule la couleur d'un rayon en prenant en compte la lumière et les reflets
+static Vec3 shade(const Scene& scene, const Ray& ray, int depth) {
+    if (depth <= 0) return {0, 0, 0};
+
+    HitRecord hit;
+    if (!findNearestIntersection(scene, ray, 1e-4, 1e9, hit))
+        return {0, 0, 0}; // aucun objet touché → noir
+    
+    // Couleur de base = lumière ambiante
+    Vec3 color = hit.material->baseColor * scene.ambientLightIntensity.x;
+
+    // Vecteur vers la caméra
+    Vec3 viewDirection = normalize(-ray.direction);
+
+    // Pour chaque lumière dans la scène
+    for (const auto& light : scene.lights) {
+        if (isInShadow(scene, hit.impactPoint, light.position))
+            continue;
+
+        Vec3 lightDirection = normalize(light.position - hit.impactPoint);
+        double NdotL = std::max(0.0, dot(hit.surfaceNormal, lightDirection));
+
+        // Composante diffuse (rendu mat)
+        Vec3 diffuse = hit.material->baseColor * (hit.material->diffuseFactor * NdotL);
+
+        // Composante spéculaire (reflet brillant)
+        Vec3 halfway = normalize(lightDirection + viewDirection);
+        double NdotH = std::max(0.0, dot(hit.surfaceNormal, halfway));
+        Vec3 specular = light.intensity * (hit.material->specularFactor * pow(NdotH, hit.material->shininess));
+
+        // Ajout à la couleur finale
+        color += diffuse + specular;
     }
-    if(h.mat->reflectivity>0){
-        Vec3 Rdir=reflect(r.d,h.n);
-        Ray rr{h.p+Rdir*1e-4,normalize(Rdir)};
-        Vec3 rcol=shade(scene,rr,depth-1);
-        color=(1-h.mat->reflectivity)*color + h.mat->reflectivity*rcol;
+
+    // Réflexion (si le matériau est réfléchissant)
+    if (hit.material->reflectivity > 0.0) {
+        Vec3 reflectedDir = reflect(ray.direction, hit.surfaceNormal);
+        Ray reflectedRay { hit.impactPoint + reflectedDir * 1e-4, normalize(reflectedDir) };
+        Vec3 reflectedColor = shade(scene, reflectedRay, depth - 1);
+        color = (1 - hit.material->reflectivity) * color + hit.material->reflectivity * reflectedColor;
     }
+
     return clamp01(color);
 }
 
+// Fonction principale de rendu : génère l'image pixel par pixel
 void Renderer::render(const Scene& scene){
-    double aspect=(double)scene.width/scene.height;
-    double fov=scene.fov*M_PI/180.0; double scale=tan(fov*0.5);
-    Vec3 forward=normalize(scene.camLook-scene.camPos);
-    Vec3 right=normalize(Vec3(forward.y*scene.camUp.z-forward.z*scene.camUp.y,
-                              forward.z*scene.camUp.x-forward.x*scene.camUp.z,
-                              forward.x*scene.camUp.y-forward.y*scene.camUp.x));
-    Vec3 up=normalize(Vec3(right.y*forward.z-right.z*forward.y,
-                           right.z*forward.x-right.x*forward.z,
-                           right.x*forward.y-right.y*forward.x));
+    double aspectRatio = static_cast<double>(scene.width) / scene.height;
+    double fovRadians = scene.fov * M_PI / 180.0;
+    double scale = tan(fovRadians * 0.5);
 
-    std::vector<Vec3> framebuffer(scene.width*scene.height);
-    for(int y=0;y<scene.height;y++){
-        for(int x=0;x<scene.width;x++){
-            double ndc_x=((x+0.5)/scene.width)*2-1;
-            double ndc_y=((y+0.5)/scene.height)*2-1;
-            ndc_x*=aspect*scale; ndc_y*=-scale;
-            Vec3 dir=normalize(forward+right*ndc_x+up*ndc_y);
-            Ray r{scene.camPos,dir};
-            framebuffer[y*scene.width+x]=shade(scene,r,maxDepth);
-        }
-        if(y%20==0) std::cerr<<"Ligne "<<y<<"/"<<scene.height<<"\n";
-    }
-    // Conversion du framebuffer en tableau d'octets (RGB 8 bits)
-    std::vector<unsigned char> pixels(scene.width * scene.height * 3);
+    // Vecteurs de base de la caméra (forward, right, up)
+    Vec3 forward = normalize(scene.cameraTarget - scene.cameraPosition);
+
+    Vec3 right = normalize(Vec3(
+        forward.y * scene.cameraUp.z - forward.z * scene.cameraUp.y,
+        forward.z * scene.cameraUp.x - forward.x * scene.cameraUp.z,
+        forward.x * scene.cameraUp.y - forward.y * scene.cameraUp.x
+    ));
+
+    Vec3 up = normalize(Vec3(
+        right.y * forward.z - right.z * forward.y,
+        right.z * forward.x - right.x * forward.z,
+        right.x * forward.y - right.y * forward.x
+    ));
+
+    // Framebuffer pour stocker la couleur de chaque pixel
+    std::vector<Vec3> framebuffer(scene.width * scene.height);
 
     for (int y = 0; y < scene.height; ++y) {
         for (int x = 0; x < scene.width; ++x) {
+            // Coordonnées normalisées (de -1 à 1)
+            double ndcX = ((x + 0.5) / scene.width) * 2 - 1;
+            double ndcY = ((y + 0.5) / scene.height) * 2 - 1;
+            ndcX *= aspectRatio * scale;
+            ndcY *= -scale;
+
+            // Direction du rayon pour ce pixel
+            Vec3 rayDirection = normalize(forward + right * ndcX + up * ndcY);
+            Ray ray { scene.cameraPosition, rayDirection };
+
+            // Calcul de la couleur via ray tracing
+            framebuffer[y * scene.width + x] = shade(scene, ray, maxDepth);
+        }
+
+        if (y % 20 == 0)
+            std::cerr << "Ligne " << y << "/" << scene.height << "\n";
+    }
+
+
+    // Conversion du framebuffer en pixels 8 bits
+    std::vector<unsigned char> pixels(scene.width * scene.height * 3);
+    for (int y = 0; y < scene.height; ++y) {
+        for (int x = 0; x < scene.width; ++x) {
             Vec3 c = clamp01(framebuffer[y * scene.width + x]);
-            int idx = (y * scene.width + x) * 3;
-            pixels[idx + 0] = static_cast<unsigned char>(255 * c.x);
-            pixels[idx + 1] = static_cast<unsigned char>(255 * c.y);
-            pixels[idx + 2] = static_cast<unsigned char>(255 * c.z);
+            int index = (y * scene.width + x) * 3;
+            pixels[index + 0] = static_cast<unsigned char>(255 * c.x);
+            pixels[index + 1] = static_cast<unsigned char>(255 * c.y);
+            pixels[index + 2] = static_cast<unsigned char>(255 * c.z);
         }
     }
 
-    std::string pngOutput = scene.output;
-    if (pngOutput.size() >= 4 && pngOutput.substr(pngOutput.size() - 4) == ".ppm")
-        pngOutput = pngOutput.substr(0, pngOutput.size() - 4) + ".png";
+    // Sortie de l'image finale en PNG
+    std::string outputFile = scene.output;
+    if (outputFile.size() >= 4 && outputFile.substr(outputFile.size() - 4) == ".ppm")
+        outputFile = outputFile.substr(0, outputFile.size() - 4) + ".png";
 
-    if (stbi_write_png(pngOutput.c_str(), scene.width, scene.height, 3,
-                    pixels.data(), scene.width * 3)) {
-        std::cerr << "OK -> " << pngOutput << "\n";
+    if (stbi_write_png(outputFile.c_str(), scene.width, scene.height, 3, pixels.data(), scene.width * 3)) {
+        std::cerr << "Rendu terminé : " << outputFile << "\n";
     } else {
-        std::cerr << "Erreur lors de l'écriture du PNG\n";
+        std::cerr << "Erreur lors de l'écriture du fichier PNG\n";
     }
 }
