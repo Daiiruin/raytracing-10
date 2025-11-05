@@ -10,9 +10,9 @@ Camera::Camera(const Vec3& pos, const Vec3& lookAt, double fovDeg) {
     fov = fovDeg * M_PI / 180.0;
 
     // Calcul des axes de la caméra
-    forward = (lookAt - pos).normalized();
-    right   = Vec3::cross(forward, Vec3(0, 1, 0)).normalized();
-    up      = Vec3::cross(right, forward).normalized();
+    forward = (lookAt - pos).normalized();// vecteur pointant de la caméra vers le point visé (lookAt).
+    right   = Vec3::cross(forward, Vec3(0, 1, 0)).normalized();// vecteur perpendiculaire à forward et au vecteur vertical (0,1,0) du monde (produit vectoriel).
+    up      = Vec3::cross(right, forward).normalized(); // vecteur perpendiculaire à forward et right pour compléter le repère orthonormé.
 }
 
 Ray Camera::generateRay(int x, int y, int width, int height) const {
