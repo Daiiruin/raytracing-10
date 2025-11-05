@@ -37,7 +37,7 @@
         "center": { "x": -3, "y": 1, "z": 0 },
         "radius": 1,
         "material": {
-          "color": { "r": 1, "g": 0, "b": 0 },
+          "color": { "r": 0.5, "g": 0, "b": 0.7 },
           "diffuse": 0.7,
           "specular": 0.5,
           "shininess": 64,
@@ -61,7 +61,7 @@
         "center": { "x": 3, "y": 1, "z": 0 },
         "radius": 1,
         "material": {
-          "color": { "r": 0, "g": 0, "b": 1 },
+          "color": { "r": 1, "g": 0, "b": 0 },
           "diffuse": 0.7,
           "specular": 0.6,
           "shininess": 96,
