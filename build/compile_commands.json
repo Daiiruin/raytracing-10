@@ -1,0 +1,56 @@
+[
+{
+  "directory": "E:/monpro/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/RayTracer.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\RayTracer.dir\\src\\Camera.cpp.obj -c E:\\monpro\\src\\Camera.cpp",
+  "file": "E:/monpro/src/Camera.cpp",
+  "output": "CMakeFiles/RayTracer.dir/src/Camera.cpp.obj"
+},
+{
+  "directory": "E:/monpro/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/RayTracer.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\RayTracer.dir\\src\\Material.cpp.obj -c E:\\monpro\\src\\Material.cpp",
+  "file": "E:/monpro/src/Material.cpp",
+  "output": "CMakeFiles/RayTracer.dir/src/Material.cpp.obj"
+},
+{
+  "directory": "E:/monpro/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/RayTracer.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\RayTracer.dir\\src\\Plane.cpp.obj -c E:\\monpro\\src\\Plane.cpp",
+  "file": "E:/monpro/src/Plane.cpp",
+  "output": "CMakeFiles/RayTracer.dir/src/Plane.cpp.obj"
+},
+{
+  "directory": "E:/monpro/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/RayTracer.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\RayTracer.dir\\src\\Ray.cpp.obj -c E:\\monpro\\src\\Ray.cpp",
+  "file": "E:/monpro/src/Ray.cpp",
+  "output": "CMakeFiles/RayTracer.dir/src/Ray.cpp.obj"
+},
+{
+  "directory": "E:/monpro/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/RayTracer.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\RayTracer.dir\\src\\RayTracer.cpp.obj -c E:\\monpro\\src\\RayTracer.cpp",
+  "file": "E:/monpro/src/RayTracer.cpp",
+  "output": "CMakeFiles/RayTracer.dir/src/RayTracer.cpp.obj"
+},
+{
+  "directory": "E:/monpro/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/RayTracer.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\RayTracer.dir\\src\\Scene.cpp.obj -c E:\\monpro\\src\\Scene.cpp",
+  "file": "E:/monpro/src/Scene.cpp",
+  "output": "CMakeFiles/RayTracer.dir/src/Scene.cpp.obj"
+},
+{
+  "directory": "E:/monpro/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/RayTracer.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\RayTracer.dir\\src\\Sphere.cpp.obj -c E:\\monpro\\src\\Sphere.cpp",
+  "file": "E:/monpro/src/Sphere.cpp",
+  "output": "CMakeFiles/RayTracer.dir/src/Sphere.cpp.obj"
+},
+{
+  "directory": "E:/monpro/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/RayTracer.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\RayTracer.dir\\src\\Vec3.cpp.obj -c E:\\monpro\\src\\Vec3.cpp",
+  "file": "E:/monpro/src/Vec3.cpp",
+  "output": "CMakeFiles/RayTracer.dir/src/Vec3.cpp.obj"
+},
+{
+  "directory": "E:/monpro/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/RayTracer.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\RayTracer.dir\\main.cpp.obj -c E:\\monpro\\main.cpp",
+  "file": "E:/monpro/main.cpp",
+  "output": "CMakeFiles/RayTracer.dir/main.cpp.obj"
+}
+]
