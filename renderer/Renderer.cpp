@@ -15,12 +15,19 @@ static bool nearestHit(const Scene& scene,const Ray& r,double tMin,double tMax,H
     return hit;
 }
 
+static bool inShadow(const Scene& scene,const Vec3& p,const Vec3& Lpos){
+    Vec3 toL=Lpos-p; double distL=std::sqrt(dot(toL,toL)); Vec3 dir=toL/distL;
+    Ray shadow{p+dir*1e-4,dir}; Hit tmp;
+    return nearestHit(scene,shadow,1e-4,distL-1e-4,tmp);
+}
+
 static Vec3 shade(const Scene& scene,const Ray& r,int depth){
     if(depth<=0) return {0,0,0};
     Hit h; if(!nearestHit(scene,r,1e-4,1e9,h)) return {0,0,0};
     Vec3 color= h.mat->color * scene.ambient.x; // simple ambient
     Vec3 V=normalize(-r.d);
     for(auto& L: scene.lights){
+        if(inShadow(scene,h.p,L.pos)) continue;
         Vec3 Ldir=normalize(L.pos-h.p);
         double NdotL=std::max(0.0,dot(h.n,Ldir));
         Vec3 diff=h.mat->color * (h.mat->diffuse*NdotL);
@@ -28,6 +35,12 @@ static Vec3 shade(const Scene& scene,const Ray& r,int depth){
         double NdotH=std::max(0.0,dot(h.n,H));
         Vec3 spec=L.intensity*(h.mat->specular*pow(NdotH,h.mat->shininess));
         color=color+diff+spec;
+    }
+    if(h.mat->reflectivity>0){
+        Vec3 Rdir=reflect(r.d,h.n);
+        Ray rr{h.p+Rdir*1e-4,normalize(Rdir)};
+        Vec3 rcol=shade(scene,rr,depth-1);
+        color=(1-h.mat->reflectivity)*color + h.mat->reflectivity*rcol;
     }
     return clamp01(color);
 }
