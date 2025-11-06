@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <numbers>
 #include "../core/Utils.hpp"
 #include <stb/stb_image_write.h>
 
@@ -43,7 +44,11 @@ static Vec3 shade(const Scene& scene, const Ray& ray, int depth) {
         return {0, 0, 0}; // aucun objet touché → noir
     
     // Couleur de base = lumière ambiante
-    Vec3 color = hit.material->baseColor * scene.ambientLightIntensity.x;
+    Vec3 color = {
+        hit.material->baseColor.x * scene.ambientLightIntensity.x,
+        hit.material->baseColor.y * scene.ambientLightIntensity.y,
+        hit.material->baseColor.z * scene.ambientLightIntensity.z
+    };
 
     // Vecteur vers la caméra
     Vec3 viewDirection = normalize(-ray.direction);
@@ -82,7 +87,7 @@ static Vec3 shade(const Scene& scene, const Ray& ray, int depth) {
 // Fonction principale de rendu : génère l'image pixel par pixel
 void Renderer::render(const Scene& scene){
     double aspectRatio = static_cast<double>(scene.width) / scene.height;
-    double fovRadians = scene.fov * M_PI / 180.0;
+    double fovRadians = scene.fov * std::numbers::pi / 180.0;
     double scale = tan(fovRadians * 0.5);
 
     // Vecteurs de base de la caméra (forward, right, up)

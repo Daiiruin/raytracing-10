@@ -6,17 +6,23 @@
     "up": { "x": 0, "y": 1, "z": 0 }
   },
   "config": {
-    "height": 600,
-    "output_file": "output.png",
-    "width": 1000
+    "width": 1920,
+    "height": 1080,
+    "output_file": "output.png"
   },
   "scene": {
-    "ambient_light": { "r": 0.4, "g": 0.4, "b": 0.4 },
+    "ambient_light": { "r": 0.2, "g": 0.2, "b": 0.2 },
     "lights": [
       {
         "type": "point",
-        "position": { "x": -5, "y": 8, "z": 5 },
-        "intensity": { "r": 1, "g": 1, "b": 1 }
+        "position": { "x": 3, "y": 9, "z": 5 },
+        "intensity": { "r": 2, "g": 2, "b": 2 }
+      },
+      {
+        "type": "point",
+        "position": { "x": -3, "y": 9, "z": -5 },
+        "intensity": { "r": 2, "g": 2, "b": 2 }
+
       }
     ],
     "objects": [
@@ -37,7 +43,7 @@
         "center": { "x": -3, "y": 1, "z": 0 },
         "radius": 1,
         "material": {
-          "color": { "r": 0.5, "g": 0, "b": 0.7 },
+          "color": { "r": 1.0, "g": 0.0, "b": 0.0 },
           "diffuse": 0.7,
           "specular": 0.5,
           "shininess": 64,
@@ -49,7 +55,7 @@
         "center": { "x": 0, "y": 1, "z": 0 },
         "radius": 1,
         "material": {
-          "color": { "r": 1, "g": 1, "b": 1 },
+          "color": { "r": 1.0, "g": 1.0, "b": 1.0 },
           "diffuse": 0.7,
           "specular": 0.7,
           "shininess": 128,
@@ -61,7 +67,43 @@
         "center": { "x": 3, "y": 1, "z": 0 },
         "radius": 1,
         "material": {
-          "color": { "r": 1, "g": 0, "b": 0 },
+          "color": { "r": 0.0, "g": 0.0, "b": 1.0 },
+          "diffuse": 0.7,
+          "specular": 0.6,
+          "shininess": 96,
+          "reflectivity": 0.5
+        }
+      },
+      {
+        "type": "sphere",
+        "center": { "x": -3, "y": 4, "z": 0 },
+        "radius": 1,
+        "material": {
+          "color": { "r": 1.0, "g": 0.0, "b": 0.0 },
+          "diffuse": 0.7,
+          "specular": 0.5,
+          "shininess": 64,
+          "reflectivity": 0.4
+        }
+      },
+      {
+        "type": "sphere",
+        "center": { "x": 0, "y": 4, "z": 0 },
+        "radius": 1,
+        "material": {
+          "color": { "r": 1.0, "g": 1.0, "b": 1.0 },
+          "diffuse": 0.7,
+          "specular": 0.7,
+          "shininess": 128,
+          "reflectivity": 0.6
+        }
+      },
+      {
+        "type": "sphere",
+        "center": { "x": 3, "y": 4, "z": 0 },
+        "radius": 1,
+        "material": {
+          "color": { "r": 0.0, "g": 0.0, "b": 1.0 },
           "diffuse": 0.7,
           "specular": 0.6,
           "shininess": 96,
