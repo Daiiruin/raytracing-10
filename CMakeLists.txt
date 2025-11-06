@@ -13,7 +13,6 @@ add_executable(raytracer ${SOURCES})
 
 target_include_directories(raytracer PRIVATE
     ${CMAKE_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/core
 )
 
 find_package(nlohmann_json 3.2.0 QUIET)
