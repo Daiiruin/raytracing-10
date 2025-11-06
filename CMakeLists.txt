@@ -27,3 +27,4 @@ if(nlohmann_json_FOUND)
 else()
     message(WARNING " nlohmann_json non trouvé — installez-le avec : sudo apt install nlohmann-json3-dev")
 endif()
+
