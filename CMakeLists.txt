@@ -17,6 +17,8 @@ add_executable(raytracer ${SOURCES})
 # Inclure le dossier core/ pour trouver Vec3.hpp
 target_include_directories(raytracer PRIVATE
     ${CMAKE_SOURCE_DIR}/core
+    ${CMAKE_SOURCE_DIR}/renderer
+    ${CMAKE_SOURCE_DIR}/scene
 )
 
 # Essayer de trouver nlohmann_json (si installé via apt)
