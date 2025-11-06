@@ -1,10 +1,24 @@
 cmake_minimum_required(VERSION 3.10)
-project(Raytracer)
+project(raytracer LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 
-include_directories(src)
+set(SOURCES
+    main.cpp
+)
 
-file(GLOB_RECURSE SOURCES "src/*.cpp")
 add_executable(raytracer ${SOURCES})
+
+target_include_directories(raytracer PRIVATE
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/core
+)
+
+find_package(nlohmann_json 3.2.0 QUIET)
+if(nlohmann_json_FOUND)
+    target_link_libraries(raytracer PRIVATE nlohmann_json::nlohmann_json)
+else()
+    message(WARNING "nlohmann_json non trouvé — assurez-vous qu'il est installé (apt install nlohmann-json3-dev)")
+endif()

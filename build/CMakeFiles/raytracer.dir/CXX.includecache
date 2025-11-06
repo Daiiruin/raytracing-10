@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/app/core/Vec3.hpp
+cmath
+-
+
+/app/main.cpp
+iostream
+-
+core/Vec3.hpp
+/app/core/Vec3.hpp
+
