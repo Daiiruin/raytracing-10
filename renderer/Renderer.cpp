@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <numbers>
 #include <stb/stb_image_write.h>
 
 static bool nearestHit(const Scene& scene,const Ray& r,double tMin,double tMax,Hit& out){
@@ -45,9 +46,9 @@ static Vec3 shade(const Scene& scene,const Ray& r,int depth){
 }
 
 void Renderer::render(const Scene& scene){
-    double aspect=(double)scene.width/scene.height;
-    double fov=scene.fov*M_PI/180.0;
-    double scale=tan(fov*0.5);
+    double aspectRatio = static_cast<double>(scene.width) / scene.height;
+    double fovRadians = scene.fov * std::numbers::pi / 180.0;
+    double scale = tan(fovRadians * 0.5);
     
     Vec3 forward=normalize(scene.camLook-scene.camPos);
     Vec3 right=normalize(Vec3(forward.y*scene.camUp.z-forward.z*scene.camUp.y,
