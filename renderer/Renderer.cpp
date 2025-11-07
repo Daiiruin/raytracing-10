@@ -4,7 +4,6 @@
 #include <iostream>
 #include <limits>
 #include <numbers>
-#include "../core/Utils.hpp"
 #include <stb/stb_image_write.h>
 
 // Trouve la première intersection entre un rayon et les objets de la scène
