@@ -1,5 +1,5 @@
 #include "scene/SceneLoader.hpp"
-#include "render/Renderer.hpp"
+#include "renderer/Renderer.hpp"
 
 int main() {
     try {
