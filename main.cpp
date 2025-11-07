@@ -1,10 +1,7 @@
 #include "scene/SceneLoader.hpp"
-<<<<<<< Updated upstream
 #include "renderer/Renderer.hpp"
-=======
-#include "render/Renderer.hpp"
 #include <chrono>
->>>>>>> Stashed changes
+
 
 int main() {
      
