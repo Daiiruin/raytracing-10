@@ -2,19 +2,50 @@
 #include "Object.hpp"
 
 struct Sphere : Object {
-    // Centre et Rayon
-    Vec3 c; double R;
+    Vec3 center;
+    double radius;
 
-    Sphere(const Vec3& c_, double R_, const Material& m){ c=c_; R=R_; mat=m; }
+    Sphere(const Vec3& centerPosition, double sphereRadius, const Material& materialInput) {
+        center = centerPosition;
+        radius = sphereRadius;
+        material = materialInput;
+    }
 
-    std::optional<Hit> intersect(const Ray& r,double tMin,double tMax) const override {
-        Vec3 oc=r.o-c; double a=dot(r.d,r.d); double b=2*dot(oc,r.d);
-        double c2=dot(oc,oc)-R*R; double disc=b*b-4*a*c2; if(disc<0) return {};
-        double s=std::sqrt(disc); double t=(-b-s)/(2*a);
-        if(t<tMin||t>tMax) t=(-b+s)/(2*a); if(t<tMin||t>tMax) return {};
-        Vec3 p = r.o + r.d * t;
-        Vec3 n = normalize(p - c);
-        Hit h{t, p, n, &mat};
-        return h;
+    // Teste l'intersection entre un rayon et la sphère
+    std::optional<HitRecord> intersect(const Ray& ray, double minDistance, double maxDistance) const override {
+        // Vecteur entre l'origine du rayon et le centre de la sphère
+        Vec3 originToCenter = ray.origin - center;
+
+        // Coefficients de l'équation quadratique : a*t² + b*t + c = 0
+        double a = dot(ray.direction, ray.direction);
+        double b = 2.0 * dot(originToCenter, ray.direction);
+        double c = dot(originToCenter, originToCenter) - radius * radius; 
+        
+        // Discriminant : détermine s'il y a une intersection
+        double discriminant = b * b - 4.0 * a * c;
+        if (discriminant < 0.0) return std::nullopt;
+
+        double sqrtDiscriminant = std::sqrt(discriminant);
+
+        // On teste les deux racines (entrée et sortie du rayon dans la sphère)
+        double t = (-b - sqrtDiscriminant) / (2.0 * a);
+        if (t < minDistance || t > maxDistance) {
+            t = (-b + sqrtDiscriminant) / (2.0 * a);
+            if (t < minDistance || t > maxDistance)
+                return std::nullopt;
+        }
+        
+        // Calcul du point d'impact et de la normale
+        Vec3 impactPoint = ray.origin + ray.direction * t;
+        Vec3 normalAtImpact = normalize(impactPoint - center);
+
+        // Création du résultat
+        HitRecord hit;
+        hit.distanceFromRayOrigin = t;
+        hit.impactPoint = impactPoint;
+        hit.surfaceNormal = normalAtImpact;
+        hit.material = &material;
+
+        return hit;
     }
 };

@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 
 set(SOURCES
     main.cpp
-    render/Renderer.cpp
+    renderer/Renderer.cpp
 )
 
 add_executable(raytracer ${SOURCES})
